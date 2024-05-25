@@ -1,3 +1,4 @@
+import 'package:findam/home_screen.dart';
 import 'package:findam/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -148,7 +149,13 @@ class SignUpScreenState extends State<SignUpScreen> {
                                 const EdgeInsets.all(13)),
                             backgroundColor: MaterialStateProperty.all(
                                 const Color.fromRGBO(254, 235, 234, 1))),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()),
+                          );
+                        },
                         child: const Text(
                           'Sign Up',
                           style: TextStyle(

@@ -1,3 +1,4 @@
+import 'package:findam/home_screen.dart';
 import 'package:findam/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -82,7 +83,13 @@ class SignInScreen extends StatelessWidget {
                                 const EdgeInsets.all(13)),
                             backgroundColor: MaterialStateProperty.all(
                                 const Color.fromRGBO(254, 235, 234, 1))),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()),
+                          );
+                        },
                         child: const Text(
                           'Login',
                           style: TextStyle(
