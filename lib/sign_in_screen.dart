@@ -58,7 +58,6 @@ class SignInScreen extends StatelessWidget {
                     const TextField(
                       cursorColor: Color.fromARGB(192, 255, 255, 255),
                       obscureText: true,
-                      // obscuringCharacter: '*',
                       decoration: InputDecoration(
                         labelText: 'Password',
                         labelStyle: TextStyle(
@@ -134,6 +133,7 @@ class SignInScreen extends StatelessWidget {
                         label: const Icon(
                           Icons.facebook,
                           size: 24,
+                          color: Color.fromARGB(221, 30, 43, 238),
                         ),
                         style: ButtonStyle(
                           padding: MaterialStateProperty.all(
@@ -147,21 +147,19 @@ class SignInScreen extends StatelessWidget {
                         },
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Center(
                       child: RichText(
                         text: TextSpan(
-                          style: TextStyle(
-                              fontFamily: 'Sora',
-                              color: Colors
-                                  .white70), // Default text style for other text
+                          style: const TextStyle(
+                              fontFamily: 'Sora', color: Colors.white70),
                           children: <TextSpan>[
-                            TextSpan(text: "Don't have an account? "),
+                            const TextSpan(text: "Don't have an account? "),
                             TextSpan(
                               text: 'Register',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Color(0xFFED873D),
-                              ), // Orange text style for 'Register'
+                              ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   Navigator.push(
