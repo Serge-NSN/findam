@@ -1,3 +1,4 @@
+import 'package:findam/routes/home.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -21,10 +22,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   static const TextStyle optionStyle = TextStyle(
       fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFFFAFAFA));
   static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Welcome Home',
-      style: optionStyle,
-    ),
+    Home(),
     Text(
       'Found Items',
       style: optionStyle,
@@ -54,10 +52,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF101010),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [_widgetOptions.elementAt(_selectedIndex)],
+      body: Container(
+        padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+        child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: SizedBox(
         height: 95, //height of navbar
@@ -76,7 +73,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
               label: 'Report',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.notifications),
+              icon: Icon(Icons.notifications_outlined),
               label: 'Info',
             ),
             BottomNavigationBarItem(
