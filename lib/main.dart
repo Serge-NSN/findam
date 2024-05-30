@@ -16,7 +16,7 @@ class SplashScreen extends StatelessWidget {
       ),
       title: 'FindAm',
       home: AnimatedSplashScreen(
-        duration: 1000,
+        duration: 3000,
         splash: Image.asset('assets/img/logo.png'),
         nextScreen: const SignInScreen(),
         splashTransition: SplashTransition.fadeTransition,

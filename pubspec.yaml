@@ -68,6 +68,11 @@ flutter:
     - assets/img/notification-icon.png
     - assets/img/nsn-profile-pic.jpeg
     - assets/img/bag.jpg
+    - assets/img/lost-id.jpg
+    - assets/img/lost-id-2.jpg
+    - assets/img/lost-passport.jpg
+    - assets/img/laptop-charger.jpg
+    - assets/img/missing-wallet.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

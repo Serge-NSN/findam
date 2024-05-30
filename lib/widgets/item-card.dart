@@ -19,7 +19,7 @@ class ItemCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(25),
                 child: Image.asset(
                   'assets/img/bag.jpg',
-                  width: 175,
+                  width: 167,
                   height: 135,
                   fit: BoxFit.cover,
                 ),
@@ -35,11 +35,11 @@ class ItemCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text(
-                    'Found',
+                    'Lost',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      color: Colors.red,
                     ),
                   ),
                 ),

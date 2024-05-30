@@ -51,6 +51,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+          toolbarHeight: 10,
+          backgroundColor: Colors.black,
+          title: Text(
+            '',
+          )),
       backgroundColor: const Color(0xFF101010),
       body: Container(
         padding: EdgeInsets.only(left: 16, right: 16, top: 16),
