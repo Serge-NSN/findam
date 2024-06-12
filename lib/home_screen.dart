@@ -1,3 +1,4 @@
+import 'package:findam/routes/found.dart';
 import 'package:findam/routes/home.dart';
 import 'package:flutter/material.dart';
 
@@ -18,15 +19,12 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; //change to 0
   static const TextStyle optionStyle = TextStyle(
       fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFFFAFAFA));
   static const List<Widget> _widgetOptions = <Widget>[
     Home(),
-    Text(
-      'Found Items',
-      style: optionStyle,
-    ),
+    FoundItems(),
     Text(
       'Report a Missing Item',
       style: optionStyle,

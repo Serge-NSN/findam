@@ -1,3 +1,4 @@
+import 'package:findam/item_info_screen.dart';
 import 'package:flutter/material.dart';
 
 class ItemCard extends StatelessWidget {
@@ -7,8 +8,10 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to another screen or perform any action here
-        // when the column is tapped.
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ItemInfoScreen()),
+        );
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,11 +38,11 @@ class ItemCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text(
-                    'Lost',
+                    'Found',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.red,
+                      color: Colors.green,
                     ),
                   ),
                 ),

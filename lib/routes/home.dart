@@ -1,5 +1,6 @@
+import 'package:findam/item_info_screen.dart';
 import 'package:findam/sign_in_screen.dart';
-import 'package:findam/widgets/item-card.dart';
+import 'package:findam/widgets/item_card.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -146,8 +147,11 @@ class Home extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          // Navigate to another screen or perform any action here
-                          // when the column is tapped.
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ItemInfoScreen()),
+                          );
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,8 +232,11 @@ class Home extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to another screen or perform any action here
-                          // when the column is tapped.
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ItemInfoScreen()),
+                          );
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,8 +318,11 @@ class Home extends StatelessWidget {
                       ItemCard(),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to another screen or perform any action here
-                          // when the column is tapped.
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ItemInfoScreen()),
+                          );
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,8 +403,11 @@ class Home extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to another screen or perform any action here
-                          // when the column is tapped.
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ItemInfoScreen()),
+                          );
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,8 +488,11 @@ class Home extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to another screen or perform any action here
-                          // when the column is tapped.
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ItemInfoScreen()),
+                          );
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
