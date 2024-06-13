@@ -1,3 +1,4 @@
+import 'package:findam/home_screen.dart';
 import 'package:findam/item_info_screen.dart';
 import 'package:findam/sign_in_screen.dart';
 import 'package:findam/widgets/item_card.dart';
@@ -108,6 +109,13 @@ class Home extends StatelessWidget {
                             ),
                             OutlinedButton(
                               onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          HomeScreen(selectedIndex: 2)),
+                                );
+
                                 // Add your button click logic here
                               },
                               style: OutlinedButton.styleFrom(

@@ -1,39 +1,45 @@
 import 'package:findam/routes/found.dart';
 import 'package:findam/routes/home.dart';
+import 'package:findam/routes/report.dart';
 import 'package:flutter/material.dart';
+import 'routes/notifications.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final int selectedIndex;
+
+  const HomeScreen({Key? key, this.selectedIndex = 0}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const BottomNavBar();
+    return BottomNavBar(initialIndex: selectedIndex);
   }
 }
 
 class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+  final int initialIndex;
+
+  const BottomNavBar({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0; //change to 0
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
+
   static const TextStyle optionStyle = TextStyle(
       fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFFFAFAFA));
   static const List<Widget> _widgetOptions = <Widget>[
     Home(),
     FoundItems(),
-    Text(
-      'Report a Missing Item',
-      style: optionStyle,
-    ),
-    Text(
-      'Notifications',
-      style: optionStyle,
-    ),
-    // Add a fifth navigation item for "Profile"
+    ReportItem(),
+    Notifications(),
     Text(
       'Setup Profile',
       style: optionStyle,
@@ -50,18 +56,17 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          toolbarHeight: 10,
-          backgroundColor: Colors.black,
-          title: Text(
-            '',
-          )),
+        toolbarHeight: 10,
+        backgroundColor: Colors.black,
+        title: Text(''),
+      ),
       backgroundColor: const Color(0xFF101010),
       body: Container(
         padding: EdgeInsets.only(left: 16, right: 16, top: 16),
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: SizedBox(
-        height: 95, //height of navbar
+        height: 95,
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -81,19 +86,19 @@ class _BottomNavBarState extends State<BottomNavBar> {
               label: 'Info',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle_outlined), // Add a profile icon
+              icon: Icon(Icons.account_circle_outlined),
               label: 'Profile',
             ),
           ],
           currentIndex: _selectedIndex,
           selectedItemColor: const Color(0xFFED873D),
           unselectedItemColor: Colors.white,
-          showUnselectedLabels: true, // Make icon labels visible
+          showUnselectedLabels: true,
           onTap: _onItemTapped,
-          selectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-          unselectedLabelStyle:
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+          selectedLabelStyle: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w300),
+          unselectedLabelStyle: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w300),
           type: BottomNavigationBarType.fixed,
           backgroundColor: const Color.fromRGBO(33, 33, 33, 1.0),
           selectedIconTheme: const IconThemeData(size: 24),
