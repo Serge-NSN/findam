@@ -13,17 +13,18 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Sora',
       ),
       title: 'FindAm',
       home: AnimatedSplashScreen(
-        duration: 0, //Set to 3000
+        duration: 3000, //Set to 3000
         splash: Image.asset('assets/img/logo.png'),
         nextScreen: const SignInScreen(), //Set to SignInScreen()
         splashTransition: SplashTransition.fadeTransition,
         pageTransitionType: PageTransitionType.leftToRightWithFade,
-        // animationDuration: Durations.extralong4,
+        animationDuration: Durations.extralong4,
         backgroundColor: const Color.fromARGB(255, 16, 16, 16),
         splashIconSize: 250,
       ),

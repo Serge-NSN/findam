@@ -3,6 +3,7 @@ import 'package:findam/routes/home.dart';
 import 'package:findam/routes/report.dart';
 import 'package:flutter/material.dart';
 import 'routes/notifications.dart';
+import 'routes/profile.dart';
 
 class HomeScreen extends StatelessWidget {
   final int selectedIndex;
@@ -33,17 +34,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
     _selectedIndex = widget.initialIndex;
   }
 
-  static const TextStyle optionStyle = TextStyle(
-      fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFFFAFAFA));
   static const List<Widget> _widgetOptions = <Widget>[
     Home(),
     FoundItems(),
     ReportItem(),
     Notifications(),
-    Text(
-      'Setup Profile',
-      style: optionStyle,
-    ),
+    Profile(),
   ];
 
   void _onItemTapped(int index) {
@@ -95,10 +91,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
           unselectedItemColor: Colors.white,
           showUnselectedLabels: true,
           onTap: _onItemTapped,
-          selectedLabelStyle: const TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w300),
-          unselectedLabelStyle: const TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w300),
+          selectedLabelStyle:
+              const TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+          unselectedLabelStyle:
+              const TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
           type: BottomNavigationBarType.fixed,
           backgroundColor: const Color.fromRGBO(33, 33, 33, 1.0),
           selectedIconTheme: const IconThemeData(size: 24),

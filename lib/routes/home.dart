@@ -1,10 +1,8 @@
 import 'package:findam/home_screen.dart';
 import 'package:findam/item_info_screen.dart';
-import 'package:findam/sign_in_screen.dart';
 import 'package:findam/widgets/item_card.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -36,19 +34,29 @@ class Home extends StatelessWidget {
                   ),
                 ),
                 // Rounded image on the right with a white border
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    child: const Center(
-                      child: Image(
-                        image: AssetImage('assets/img/nsn-profile-pic.jpeg'),
-                        fit: BoxFit.cover, // Adjust the fit as needed
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const HomeScreen(selectedIndex: 4)),
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      child: const Center(
+                        child: Image(
+                          image: AssetImage('assets/img/unknown-profile.jpg'),
+                          fit: BoxFit.cover, // Adjust the fit as needed
+                        ),
                       ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
