@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:google_ml_kit/google_ml_kit.dart';
 
 class ReportItem extends StatefulWidget {
   const ReportItem({super.key});
@@ -20,6 +19,7 @@ class _ReportItemState extends State<ReportItem> {
   File? _selectedImage;
 
   final ImagePicker _picker = ImagePicker();
+  final textRecognizer = GoogleMlKit.vision.textRecognizer();
 
   void _validateForm() {
     setState(() {
@@ -38,13 +38,26 @@ class _ReportItemState extends State<ReportItem> {
         _isImageUploaded = true;
         _validateForm();
       });
+      _extractTextFromImage(File(pickedFile.path));
     }
+  }
+
+  Future<void> _extractTextFromImage(File image) async {
+    final inputImage = InputImage.fromFile(image);
+    final RecognizedText recognizedText =
+        await textRecognizer.processImage(inputImage);
+
+    setState(() {
+      _descriptionController.text = recognizedText.text;
+    });
+    _validateForm();
   }
 
   @override
   void dispose() {
     _itemNameController.dispose();
     _descriptionController.dispose();
+    textRecognizer.close();
     super.dispose();
   }
 
