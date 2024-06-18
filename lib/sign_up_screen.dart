@@ -1,8 +1,6 @@
-import 'package:findam/home_screen.dart';
-import 'package:findam/sign_in_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
+import 'package:findam/home_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,6 +12,8 @@ class SignUpScreen extends StatefulWidget {
 class SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController phoneController =
       TextEditingController(text: '+237');
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final FocusNode phoneFocusNode = FocusNode();
 
   @override
@@ -81,43 +81,24 @@ class SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       style: TextStyle(color: Color(0xFFB1B1B1)),
-                      textCapitalization: TextCapitalization.characters,
                     ),
-                    TextFormField(
+                    const SizedBox(height: 16),
+                    TextField(
                       controller: phoneController,
                       focusNode: phoneFocusNode,
-                      cursorColor: const Color.fromARGB(192, 255, 255, 255),
-                      decoration: const InputDecoration(
-                        labelText:
-                            'Phone Number *', // Add an asterisk to indicate it's required
+                      cursorColor: Color.fromARGB(192, 255, 255, 255),
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
                         labelStyle: TextStyle(
                           color: Color(0xFFB1B1B1),
                         ),
+                        helperText: 'Eg. +237xxxxxxxxx',
                       ),
-                      style: const TextStyle(color: Color(0xFFB1B1B1)),
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(13),
-                        FilteringTextInputFormatter.allow(RegExp(r'[\d+]')),
-                      ],
-                      validator: (value) {
-                        if (value!.length <= 13) {
-                          return 'Please enter a phone number';
-                        }
-                        // You can add additional validation logic here if needed.
-                        return null; // Return null if validation passes.
-                      },
-                      onChanged: (value) {
-                        if (!value.startsWith('+237')) {
-                          phoneController.text = '+237';
-                          phoneController.selection =
-                              TextSelection.fromPosition(
-                            TextPosition(offset: phoneController.text.length),
-                          );
-                        }
-                      },
+                      style: TextStyle(color: Color(0xFFB1B1B1)),
                     ),
-                    const TextField(
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: emailController,
                       cursorColor: Color.fromARGB(192, 255, 255, 255),
                       decoration: InputDecoration(
                         labelText: 'E-mail Address',
@@ -127,7 +108,9 @@ class SignUpScreenState extends State<SignUpScreen> {
                       ),
                       style: TextStyle(color: Color(0xFFB1B1B1)),
                     ),
-                    const TextField(
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: passwordController,
                       cursorColor: Color.fromARGB(192, 255, 255, 255),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -140,7 +123,6 @@ class SignUpScreenState extends State<SignUpScreen> {
                       style: TextStyle(color: Color(0xFFB1B1B1)),
                     ),
                     const SizedBox(height: 20),
-                    const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -149,12 +131,28 @@ class SignUpScreenState extends State<SignUpScreen> {
                                 const EdgeInsets.all(13)),
                             backgroundColor: MaterialStateProperty.all(
                                 const Color.fromRGBO(254, 235, 234, 1))),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
+                        onPressed: () async {
+                          try {
+                            UserCredential userCredential = await FirebaseAuth
+                                .instance
+                                .createUserWithEmailAndPassword(
+                                    email: emailController.text,
+                                    password: passwordController.text);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'weak-password') {
+                              print('The password provided is too weak.');
+                            } else if (e.code == 'email-already-in-use') {
+                              print(
+                                  'The account already exists for that email.');
+                            }
+                          } catch (e) {
+                            print(e);
+                          }
                         },
                         child: const Text(
                           'Sign Up',
@@ -162,84 +160,6 @@ class SignUpScreenState extends State<SignUpScreen> {
                               fontWeight: FontWeight.w500,
                               color: Colors.black,
                               fontSize: 20),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Center(
-                      child: Text(
-                        'OR',
-                        style:
-                            TextStyle(fontSize: 16, color: Color(0xFFB1B1B1)),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Text(
-                          'Continue with',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        label: Image.asset('assets/img/google-logo.png',
-                            height: 18),
-                        style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(12)),
-                          backgroundColor: MaterialStateProperty.all(
-                            const Color.fromRGBO(248, 251, 255, 1),
-                          ),
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Text(
-                          'Continue with',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        label: const Icon(
-                          Icons.facebook,
-                          size: 24,
-                          color: Color.fromARGB(221, 30, 43, 238),
-                        ),
-                        style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(10)),
-                          backgroundColor: MaterialStateProperty.all(
-                            const Color.fromRGBO(248, 251, 255, 1),
-                          ),
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
-                              fontFamily: 'Sora', color: Colors.white70),
-                          children: <TextSpan>[
-                            const TextSpan(text: "Already have an account? "),
-                            TextSpan(
-                              text: 'Login',
-                              style: const TextStyle(
-                                color: Color(0xFFED873D),
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const SignInScreen()),
-                                  );
-                                },
-                            ),
-                          ],
                         ),
                       ),
                     ),

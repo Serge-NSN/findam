@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false"></string>
+    <string name="firebase_database_url" translatable="false">https://findam-7426a-default-rtdb.europe-west1.firebasedatabase.app</string>
+    <string name="gcm_defaultSenderId" translatable="false">43490491477</string>
+    <string name="google_api_key" translatable="false">AIzaSyDyw1EIjriy5QJYqM29smRnEYxG9rybmts</string>
+    <string name="google_app_id" translatable="false">1:43490491477:android:6385b48889c1462be528dc</string>
+    <string name="google_crash_reporting_api_key" translatable="false"></string>
+    <string name="google_storage_bucket" translatable="false">findam-7426a.appspot.com</string>
+    <string name="project_id" translatable="false">findam-7426a</string>
+</resources>

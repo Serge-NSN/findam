@@ -1,10 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:findam/home_screen.dart';
 import 'package:findam/sign_up_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 
 class SignInScreen extends StatelessWidget {
-  const SignInScreen({super.key});
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class SignInScreen extends StatelessWidget {
               ),
             ),
             MediaQuery.of(context).viewInsets.bottom > 0
-                ? const SizedBox(height: 8) // add gap when keyboard is present
+                ? const SizedBox(height: 8)
                 : const SizedBox(height: 0),
             Expanded(
               child: SingleChildScrollView(
@@ -41,11 +43,10 @@ class SignInScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MediaQuery.of(context).viewInsets.bottom > 0
-                        ? const SizedBox(
-                            height:
-                                15) // Reduce the SizedBox when keyboard is present
+                        ? const SizedBox(height: 15)
                         : const SizedBox(height: 70),
-                    const TextField(
+                    TextField(
+                      controller: emailController,
                       cursorColor: Color.fromARGB(192, 255, 255, 255),
                       decoration: InputDecoration(
                         labelText: 'E-mail Address',
@@ -56,7 +57,8 @@ class SignInScreen extends StatelessWidget {
                       style: TextStyle(color: Color(0xFFB1B1B1)),
                     ),
                     const SizedBox(height: 16),
-                    const TextField(
+                    TextField(
+                      controller: passwordController,
                       cursorColor: Color.fromARGB(192, 255, 255, 255),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -83,12 +85,25 @@ class SignInScreen extends StatelessWidget {
                                 const EdgeInsets.all(13)),
                             backgroundColor: MaterialStateProperty.all(
                                 const Color.fromRGBO(254, 235, 234, 1))),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
+                        onPressed: () async {
+                          try {
+                            UserCredential userCredential = await FirebaseAuth
+                                .instance
+                                .signInWithEmailAndPassword(
+                                    email: emailController.text,
+                                    password: passwordController.text);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'user-not-found') {
+                              print('No user found for that email.');
+                            } else if (e.code == 'wrong-password') {
+                              print('Wrong password provided.');
+                            }
+                          }
                         },
                         child: const Text(
                           'Login',
@@ -108,52 +123,7 @@ class SignInScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Text(
-                          'Continue with ',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        label: Image.asset('assets/img/google-logo.png',
-                            height: 18),
-                        style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(12)),
-                          backgroundColor: MaterialStateProperty.all(
-                            const Color.fromRGBO(248, 251, 255, 1),
-                          ),
-                        ),
-                        onPressed: () {
-                          // onPressed code
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Text(
-                          'Continue with ',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        label: const Icon(
-                          Icons.facebook,
-                          size: 24,
-                          color: Color.fromARGB(221, 30, 43, 238),
-                        ),
-                        style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(10)),
-                          backgroundColor: MaterialStateProperty.all(
-                            const Color.fromRGBO(248, 251, 255, 1),
-                          ),
-                        ),
-                        onPressed: () {
-                          // Your onPressed code
-                        },
-                      ),
-                    ),
+                    // Add Google/Facebook Sign-In buttons here
                     const SizedBox(height: 20),
                     Center(
                       child: RichText(

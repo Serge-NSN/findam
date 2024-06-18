@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "43490491477",
+    "firebase_url": "https://findam-7426a-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "findam-7426a",
+    "storage_bucket": "findam-7426a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43490491477:android:6385b48889c1462be528dc",
+        "android_client_info": {
+          "package_name": "com.nsn.findam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyw1EIjriy5QJYqM29smRnEYxG9rybmts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
