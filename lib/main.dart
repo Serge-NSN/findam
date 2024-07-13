@@ -1,4 +1,5 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:firebase_core/firebase_core.dart';
 import 'package:findam/home_screen.dart';
 import 'package:findam/sign_in_screen.dart';
@@ -8,11 +9,11 @@ import 'package:page_transition/page_transition.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const SplashScreen());
+  runApp(const MyApp());
 }
 
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +23,46 @@ class SplashScreen extends StatelessWidget {
         fontFamily: 'Sora',
       ),
       title: 'FindAm',
-      home: AnimatedSplashScreen(
-        duration: 3000,
-        splash: Image.asset('assets/img/logo.png'),
-        nextScreen: SignInScreen(),
-        splashTransition: SplashTransition.fadeTransition,
-        pageTransitionType: PageTransitionType.leftToRightWithFade,
-        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
-        splashIconSize: 250,
-      ),
+      home: const SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSplashScreen(
+      duration: 3000,
+      splash: Image.asset('assets/img/logo.png'),
+      splashIconSize: 250,
+      nextScreen: const SplashNavigation(),
+      splashTransition: SplashTransition.fadeTransition,
+      pageTransitionType: PageTransitionType.leftToRightWithFade,
+      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+    );
+  }
+}
+
+class SplashNavigation extends StatelessWidget {
+  const SplashNavigation({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<User?>(
+      future: FirebaseAuth.instance
+          .authStateChanges()
+          .first, // Get the first authentication state change
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(); // Show a loading indicator if needed
+        } else if (snapshot.hasData && snapshot.data != null) {
+          return const HomeScreen(); // User is logged in
+        } else {
+          return SignInScreen(); // User is not logged in
+        }
+      },
     );
   }
 }

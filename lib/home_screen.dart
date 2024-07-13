@@ -34,6 +34,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
     _selectedIndex = widget.initialIndex;
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   static const List<Widget> _widgetOptions = <Widget>[
     Home(),
     FoundItems(),
@@ -41,12 +47,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
     Notifications(),
     Profile(),
   ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

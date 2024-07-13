@@ -1,7 +1,9 @@
+import 'package:findam/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReportItem extends StatefulWidget {
   const ReportItem({super.key});
@@ -14,9 +16,12 @@ class _ReportItemState extends State<ReportItem> {
   final _formKey = GlobalKey<FormState>();
   final _itemNameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
   bool _isImageUploaded = false;
   bool _isFormValid = false;
   File? _selectedImage;
+  DateTime? _foundDate;
 
   final ImagePicker _picker = ImagePicker();
   final textRecognizer = GoogleMlKit.vision.textRecognizer();
@@ -25,12 +30,45 @@ class _ReportItemState extends State<ReportItem> {
     setState(() {
       _isFormValid = _itemNameController.text.isNotEmpty &&
           _descriptionController.text.isNotEmpty &&
-          _isImageUploaded;
+          _locationController.text.isNotEmpty &&
+          _phoneNumberController.text.isNotEmpty &&
+          _isImageUploaded &&
+          _foundDate != null;
     });
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.getImage(source: ImageSource.camera);
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Gallery'),
+                onTap: () {
+                  _pickImageFromSource(ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_camera),
+                title: Text('Camera'),
+                onTap: () {
+                  _pickImageFromSource(ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImageFromSource(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
 
     if (pickedFile != null) {
       setState(() {
@@ -51,12 +89,99 @@ class _ReportItemState extends State<ReportItem> {
       _descriptionController.text = recognizedText.text;
     });
     _validateForm();
+
+    const phrases = [
+      'REPUBLIC OF CAMEROON',
+      'NOM/SURNAME',
+      'Request identifiant',
+      'Carte Nationale',
+      'Profession',
+      'SIGNATURE',
+      'SEX',
+      'PLACE OF BIRTH',
+      'demande',
+      'Temporary Identity Document',
+      'CAMEROUN',
+      'NATIONAL SECURITY',
+      'provisoire'
+    ];
+
+    final matchedPhrases = phrases.where((phrase) =>
+        recognizedText.text.toUpperCase().contains(phrase.toUpperCase()));
+    if (matchedPhrases.length >= 4) {
+      setState(() {
+        _itemNameController.text = 'ID Card';
+      });
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.black, // header background color
+              onPrimary: Colors.white, // header text color
+              onSurface: Colors.black, // body text color
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor:
+                    Color.fromARGB(255, 97, 59, 3), // button text color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _foundDate) {
+      setState(() {
+        _foundDate = picked;
+        _validateForm();
+      });
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await FirebaseFirestore.instance.collection('reported_items').add({
+          'item_name': _itemNameController.text,
+          'description': _descriptionController.text,
+          'location': _locationController.text,
+          'phone_number': _phoneNumberController.text,
+          'found_date': _foundDate?.toIso8601String(),
+          'image_url': _selectedImage != null ? _selectedImage!.path : '',
+        });
+
+        // Navigate to home screen after successful submission
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(selectedIndex: 0)),
+        );
+      } catch (e) {
+        print('Error submitting form: $e');
+        // Show an error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to submit the form. Please try again.')),
+        );
+      }
+    }
   }
 
   @override
   void dispose() {
     _itemNameController.dispose();
     _descriptionController.dispose();
+    _locationController.dispose();
+    _phoneNumberController.dispose();
     textRecognizer.close();
     super.dispose();
   }
@@ -140,24 +265,25 @@ class _ReportItemState extends State<ReportItem> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 5),
                       TextFormField(
-                          controller: _itemNameController,
-                          cursorColor: Color.fromARGB(192, 255, 255, 255),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(
-                              color: Color(0xFFB1B1B1),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xFFB1B1B1)),
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
+                        controller: _itemNameController,
+                        cursorColor: Color.fromARGB(192, 255, 255, 255),
+                        decoration: InputDecoration(
+                          labelStyle: TextStyle(
+                            color: Color(0xFFB1B1B1),
                           ),
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontWeight: FontWeight.w300)),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFB1B1B1)),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.w300),
+                      ),
                       SizedBox(height: 20),
                       Row(
                         children: [
@@ -180,34 +306,173 @@ class _ReportItemState extends State<ReportItem> {
                       ),
                       SizedBox(height: 10),
                       Container(
-                          width: double.infinity,
-                          height: 120,
+                        width: double.infinity,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                        child: TextFormField(
+                          controller: _descriptionController,
+                          cursorColor: Colors.grey,
+                          maxLines: null,
+                          decoration: InputDecoration(
+                            hintText: 'Provide details here...',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(8),
+                            hintStyle: TextStyle(
+                              fontSize: 15,
+                              color: const Color.fromARGB(132, 255, 255, 255),
+                              fontWeight: FontWeight.w100,
+                            ),
+                          ),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w100,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(
+                            '*',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            ' Date Found',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 10),
                           decoration: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                            color: Colors.grey,
-                            width: 1.0, // Adjust the width as needed
-                          ))),
-                          child: TextFormField(
-                            controller: _descriptionController,
-                            cursorColor: Colors.grey,
-                            maxLines: null,
-                            decoration: InputDecoration(
-                              hintText: 'Enter your text...',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(8),
-                              hintStyle: TextStyle(
-                                fontSize: 15,
-                                color: const Color.fromARGB(132, 255, 255, 255),
-                                fontWeight: FontWeight.w100,
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
                               ),
                             ),
-                            style: TextStyle(
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _foundDate == null
+                                    ? 'Select date'
+                                    : '${_foundDate!.day}/${_foundDate!.month}/${_foundDate!.year}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                              Icon(
+                                Icons.calendar_today,
                                 color: Colors.white,
-                                fontWeight: FontWeight.w100,
-                                fontSize: 15),
-                            // Set the text color to white
-                          )),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(
+                            '*',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            ' Where did you find this item?',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5),
+                      TextFormField(
+                        controller: _locationController,
+                        cursorColor: Color.fromARGB(192, 255, 255, 255),
+                        decoration: InputDecoration(
+                          labelStyle: TextStyle(
+                            color: Color(0xFFB1B1B1),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFB1B1B1)),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(
+                            '*',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            ' Phone Number',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5),
+                      TextFormField(
+                        controller: _phoneNumberController,
+                        cursorColor: Color.fromARGB(192, 255, 255, 255),
+                        decoration: InputDecoration(
+                          labelStyle: TextStyle(
+                            color: Color(0xFFB1B1B1),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFB1B1B1)),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.w300,
+                        ),
+                        maxLength: 9,
+                        keyboardType: TextInputType.phone,
+                      ),
                       const SizedBox(height: 25),
                       SizedBox(
                         width: double.infinity,
@@ -222,11 +487,7 @@ class _ReportItemState extends State<ReportItem> {
                                   : Color.fromARGB(167, 254, 235, 234),
                             ),
                           ),
-                          onPressed: _isFormValid
-                              ? () {
-                                  // Handle form submission
-                                }
-                              : null,
+                          onPressed: _isFormValid ? _submitForm : null,
                           child: const Text(
                             'Report',
                             style: TextStyle(
