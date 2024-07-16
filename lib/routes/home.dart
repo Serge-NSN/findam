@@ -1,8 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:findam/home_screen.dart';
 import 'package:findam/item_info_screen.dart';
-import 'package:findam/widgets/item_card.dart';
-
-import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -21,7 +20,6 @@ class Home extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Text on the left with a width of 170
                 const SizedBox(
                   width: 190,
                   child: Padding(
@@ -29,11 +27,10 @@ class Home extends StatelessWidget {
                     child: Text(
                       'What personal item has been misplaced?',
                       style: TextStyle(fontSize: 16),
-                      softWrap: true, // Allow text to wrap
+                      softWrap: true,
                     ),
                   ),
                 ),
-                // Rounded image on the right with a white border
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -51,7 +48,7 @@ class Home extends StatelessWidget {
                       child: const Center(
                         child: Image(
                           image: AssetImage('assets/img/unknown-profile.jpg'),
-                          fit: BoxFit.cover, // Adjust the fit as needed
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -60,9 +57,7 @@ class Home extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(
-            height: 25,
-          ),
+          const SizedBox(height: 25),
           TextField(
             decoration: InputDecoration(
               contentPadding: EdgeInsets.all(12),
@@ -70,17 +65,13 @@ class Home extends StatelessWidget {
               fillColor: const Color(0xFFF8FBFF),
               hintText: '   Search for misplaced items',
               hintStyle: const TextStyle(fontWeight: FontWeight.w100),
-              prefixIcon: const Icon(
-                Icons.search,
-              ),
+              prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
               ),
             ),
           ),
-          const SizedBox(
-            height: 15,
-          ),
+          const SizedBox(height: 15),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -104,9 +95,7 @@ class Home extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
+                        const SizedBox(height: 12.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -123,8 +112,6 @@ class Home extends StatelessWidget {
                                       builder: (context) =>
                                           HomeScreen(selectedIndex: 2)),
                                 );
-
-                                // Add your button click logic here
                               },
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(
@@ -142,453 +129,132 @@ class Home extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
+                  const SizedBox(height: 15.0),
                   const Text(
                     'Recent items reported',
                     style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 12),
-                  GridView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.75,
-                    ),
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ItemInfoScreen()),
-                          );
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('reported_items')
+                        .orderBy('found_date', descending: true)
+                        .limit(20)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final items = snapshot.data!.docs;
+
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ItemInfoScreen()),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(25),
-                                  child: Image.asset(
-                                    'assets/img/lost-id-2.jpg',
-                                    width: 167,
-                                    height: 135,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Text(
-                                      'Lost',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red,
+                                Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(25),
+                                      child: Image.network(
+                                        item['image_url'],
+                                        width: 167,
+                                        height: 135,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
+                                    Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: const Text(
+                                          'Found',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  item['item_name'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  item['found_date'] != null
+                                      ? DateTime.parse(item['found_date'])
+                                          .toLocal()
+                                          .toString()
+                                          .split(' ')[0]
+                                      : '',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w200,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text.rich(
+                                  TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w100,
+                                      color: Colors.white,
+                                    ),
+                                    children: [
+                                      const WidgetSpan(
+                                        child: Icon(
+                                          Icons.location_on,
+                                          size: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      TextSpan(text: item['location']),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                                height:
-                                    8), // Add some space between the image and the text
-                            const Text(
-                              'ID Card',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text(
-                              'June 01, 2024',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w200,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text.rich(
-                              TextSpan(
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w100,
-                                  color: Colors.white,
-                                ),
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' New Road Junction'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ItemInfoScreen()),
                           );
                         },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(25),
-                                  child: Image.asset(
-                                    'assets/img/laptop-charger.jpg',
-                                    width: 167,
-                                    height: 135,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Text(
-                                      'Found',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                                height:
-                                    8), // Add some space between the image and the text
-                            const Text(
-                              'Laptop Charger',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text(
-                              'May 29, 2024',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w200,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text.rich(
-                              TextSpan(
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w100,
-                                  color: Colors.white,
-                                ),
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' UBa Campus'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ItemCard(),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ItemInfoScreen()),
-                          );
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(25),
-                                  child: Image.asset(
-                                    'assets/img/lost-passport.jpg',
-                                    width: 167,
-                                    height: 135,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Text(
-                                      'Found',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                                height:
-                                    8), // Add some space between the image and the text
-                            const Text(
-                              'Passport',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text(
-                              'May 02, 2024',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w200,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text.rich(
-                              TextSpan(
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w100,
-                                  color: Colors.white,
-                                ),
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' Bambili'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ItemInfoScreen()),
-                          );
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(25),
-                                  child: Image.asset(
-                                    'assets/img/lost-id.jpg',
-                                    width: 167,
-                                    height: 135,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Text(
-                                      'Found',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                                height:
-                                    8), // Add some space between the image and the text
-                            const Text(
-                              'Missing ID',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text(
-                              'May 25, 2024',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w200,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text.rich(
-                              TextSpan(
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w100,
-                                  color: Colors.white,
-                                ),
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' Up Station'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ItemInfoScreen()),
-                          );
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(25),
-                                  child: Image.asset(
-                                    'assets/img/missing-wallet.jpg',
-                                    width: 167,
-                                    height: 135,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Text(
-                                      'Lost',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                                height:
-                                    8), // Add some space between the image and the text
-                            const Text(
-                              'Wallet',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text(
-                              'May 19, 2024',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w200,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text.rich(
-                              TextSpan(
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w100,
-                                  color: Colors.white,
-                                ),
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' Vatican Agency'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
