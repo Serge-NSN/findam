@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -21,6 +22,7 @@ class _ReportItemState extends State<ReportItem> {
   final _phoneNumberController = TextEditingController();
   bool _isImageUploaded = false;
   bool _isFormValid = false;
+  bool _isLoading = false;
   File? _selectedImage;
   DateTime? _foundDate;
 
@@ -151,25 +153,52 @@ class _ReportItemState extends State<ReportItem> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
       try {
         final user = FirebaseAuth.instance.currentUser;
         if (user != null) {
+          String imageUrl = '';
+          if (_selectedImage != null) {
+            try {
+              final storageRef = FirebaseStorage.instance.ref().child(
+                  'reported_items/${DateTime.now().millisecondsSinceEpoch}.jpg');
+              final uploadTask = storageRef.putFile(_selectedImage!);
+              final snapshot = await uploadTask.whenComplete(() {});
+              imageUrl = await snapshot.ref.getDownloadURL();
+            } catch (e) {
+              print('Error uploading image: $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content:
+                        Text('Failed to upload the image. Please try again.')),
+              );
+              setState(() {
+                _isLoading = false;
+              });
+              return;
+            }
+          }
+
           await FirebaseFirestore.instance.collection('reported_items').add({
             'item_name': _itemNameController.text,
             'description': _descriptionController.text,
             'location': _locationController.text,
             'phone_number': _phoneNumberController.text,
             'found_date': _foundDate?.toIso8601String(),
-            'image_url': _selectedImage != null ? _selectedImage!.path : '',
+            'image_url': imageUrl,
             'user_id': user.uid,
             'user_email': user.email,
           });
 
           // Navigate to home screen after successful submission
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
                 builder: (context) => HomeScreen(selectedIndex: 0)),
+            (Route<dynamic> route) => false,
           );
         }
       } catch (e) {
@@ -179,6 +208,10 @@ class _ReportItemState extends State<ReportItem> {
           SnackBar(
               content: Text('Failed to submit the form. Please try again.')),
         );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -494,15 +527,21 @@ class _ReportItemState extends State<ReportItem> {
                                   : Color.fromARGB(167, 254, 235, 234),
                             ),
                           ),
-                          onPressed: _isFormValid ? _submitForm : null,
-                          child: const Text(
-                            'Report',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF031B01),
-                              fontSize: 20,
-                            ),
-                          ),
+                          onPressed:
+                              _isFormValid && !_isLoading ? _submitForm : null,
+                          child: _isLoading
+                              ? CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Color(0xFF031B01)),
+                                )
+                              : const Text(
+                                  'Report',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF031B01),
+                                    fontSize: 20,
+                                  ),
+                                ),
                         ),
                       ),
                     ],
