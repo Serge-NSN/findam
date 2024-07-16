@@ -67,8 +67,14 @@ flutter {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:33.1.0')
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
     apply plugin: 'com.android.application'
     apply plugin: 'com.google.gms.google-services'
     googleServices.disableVersionCheck = true
+    // implementation("com.google.firebase:firebase-storage")
+}
+configurations.all {
+    resolutionStrategy {
+        force 'com.squareup.okio:okio:1.17.5'
+    }
 }

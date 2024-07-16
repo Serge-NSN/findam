@@ -1,9 +1,10 @@
-import 'package:findam/home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:findam/home_screen.dart';
 
 class ReportItem extends StatefulWidget {
   const ReportItem({super.key});
@@ -151,20 +152,26 @@ class _ReportItemState extends State<ReportItem> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseFirestore.instance.collection('reported_items').add({
-          'item_name': _itemNameController.text,
-          'description': _descriptionController.text,
-          'location': _locationController.text,
-          'phone_number': _phoneNumberController.text,
-          'found_date': _foundDate?.toIso8601String(),
-          'image_url': _selectedImage != null ? _selectedImage!.path : '',
-        });
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          await FirebaseFirestore.instance.collection('reported_items').add({
+            'item_name': _itemNameController.text,
+            'description': _descriptionController.text,
+            'location': _locationController.text,
+            'phone_number': _phoneNumberController.text,
+            'found_date': _foundDate?.toIso8601String(),
+            'image_url': _selectedImage != null ? _selectedImage!.path : '',
+            'user_id': user.uid,
+            'user_email': user.email,
+          });
 
-        // Navigate to home screen after successful submission
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(selectedIndex: 0)),
-        );
+          // Navigate to home screen after successful submission
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeScreen(selectedIndex: 0)),
+          );
+        }
       } catch (e) {
         print('Error submitting form: $e');
         // Show an error message to the user
