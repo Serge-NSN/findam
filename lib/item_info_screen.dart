@@ -1,5 +1,7 @@
 import 'package:findam/payment_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ItemInfoScreen extends StatelessWidget {
   final String imageUrl;
@@ -110,9 +112,15 @@ class ItemInfoScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PaymentScreen(
-                                returnUrl: 'myapp://return', // Define your custom scheme
-                                contactId: contactId,
+                              builder: (context) => WebView(
+                                initialUrl:
+                                    'https://collections.tranzak.me/pay/payment-link/PLFSLXINS85Z6GYT2S',
+                                javascriptMode: JavascriptMode
+                                    .unrestricted, // Enable JavaScript
+                                onWebViewCreated:
+                                    (WebViewController controller) {
+                                  // You can interact with the WebView using the controller
+                                },
                               ),
                             ),
                           );
@@ -134,6 +142,24 @@ class ItemInfoScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class WebViewContainer extends StatelessWidget {
+  final String url;
+
+  const WebViewContainer({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tranzak Link'),
+      ),
+      body: WebView(
+        initialUrl: url,
       ),
     );
   }
