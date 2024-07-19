@@ -1,10 +1,25 @@
-import 'package:findam/home_screen.dart';
-import 'package:findam/sign_up_screen.dart';
+import 'package:findam/payment_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 
 class ItemInfoScreen extends StatelessWidget {
-  const ItemInfoScreen({super.key});
+  final String imageUrl;
+  final String itemName;
+  final String description;
+  final String location;
+  final String foundDate;
+  final String phoneNumber;
+  final String contactId; // Add this to store the document ID
+
+  const ItemInfoScreen({
+    super.key,
+    required this.imageUrl,
+    required this.itemName,
+    required this.description,
+    required this.location,
+    required this.foundDate,
+    required this.phoneNumber,
+    required this.contactId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +34,6 @@ class ItemInfoScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // const SizedBox(height: 10),
             const Align(
               alignment: Alignment.topLeft,
               child: Center(
@@ -42,63 +56,74 @@ class ItemInfoScreen extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(25),
-                      child: Image.asset(
-                        'assets/img/bag.jpg',
+                      child: Image.network(
+                        imageUrl,
                         width: 167,
                         height: 135,
                         fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(height: 25),
-                    const Text(
-                      'Missing Handbag',
-                      style: TextStyle(color: Colors.white),
+                    Text(
+                      itemName,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
                     ),
                     const Divider(
-                      color: Colors.grey, // The color of the divider
-                      thickness: 0.5, // The thickness of the line
-                      indent:
-                          0, // Empty space to the leading edge of the divider.
-                      endIndent:
-                          0, // Empty space to the trailing edge of the divider.
+                      color: Colors.grey,
+                      thickness: 0.5,
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Found it in a taxi. Sit volutpat urna elit faucibus urna. Ultricies ultrices imperdiet.',
-                      style: TextStyle(
+                    Text(
+                      description,
+                      style: const TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w100),
                     ),
                     const SizedBox(height: 10),
                     const Divider(
-                      color: Colors.grey, // The color of the divider
-                      thickness: 0.5, // The thickness of the line
-                      indent:
-                          0, // Empty space to the leading edge of the divider.
-                      endIndent:
-                          0, // Empty space to the trailing edge of the divider.
+                      color: Colors.grey,
+                      thickness: 0.5,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Location: $location',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Found Date: ${DateTime.parse(foundDate).toLocal().toString().split(' ')[0]}',
+                      style: const TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 150),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                            padding: MaterialStateProperty.all(
-                                const EdgeInsets.all(13)),
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(254, 235, 234, 1))),
+                          padding: MaterialStateProperty.all(
+                              const EdgeInsets.all(13)),
+                          backgroundColor: MaterialStateProperty.all(
+                              const Color.fromRGBO(254, 235, 234, 1)),
+                        ),
                         onPressed: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //       builder: (context) => const HomeScreen()),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentScreen(
+                                returnUrl: 'myapp://return', // Define your custom scheme
+                                contactId: contactId,
+                              ),
+                            ),
+                          );
                         },
                         child: const Text(
                           'Pay to Collect',
                           style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF031B01),
-                              fontSize: 20),
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF031B01),
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                     ),

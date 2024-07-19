@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:findam/home_screen.dart';
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 
 class ReportItem extends StatefulWidget {
   const ReportItem({super.key});
@@ -88,11 +90,6 @@ class _ReportItemState extends State<ReportItem> {
     final RecognizedText recognizedText =
         await textRecognizer.processImage(inputImage);
 
-    setState(() {
-      _descriptionController.text = recognizedText.text;
-    });
-    _validateForm();
-
     const phrases = [
       'REPUBLIC OF CAMEROON',
       'NOM/SURNAME',
@@ -111,10 +108,18 @@ class _ReportItemState extends State<ReportItem> {
 
     final matchedPhrases = phrases.where((phrase) =>
         recognizedText.text.toUpperCase().contains(phrase.toUpperCase()));
+
     if (matchedPhrases.length >= 4) {
       setState(() {
         _itemNameController.text = 'ID Card';
+        _descriptionController.text = recognizedText.text;
       });
+      _validateForm();
+    } else {
+      setState(() {
+        _descriptionController.text = '';
+      });
+      _validateForm();
     }
   }
 
@@ -163,9 +168,31 @@ class _ReportItemState extends State<ReportItem> {
           String imageUrl = '';
           if (_selectedImage != null) {
             try {
+              // Read the image file as bytes
+              final imageBytes = await _selectedImage!.readAsBytes();
+
+              // Decode the image
+              img.Image? originalImage = img.decodeImage(imageBytes);
+
+              // Resize the image to a smaller size
+              img.Image resizedImage = img.copyResize(
+                originalImage!,
+                width: 400, // You can change the width and height as needed
+              );
+
+              // Encode the resized image to JPG with 20% quality
+              final compressedImageBytes =
+                  img.encodeJpg(resizedImage, quality: 25);
+
+              // Create a temporary file with the compressed image
+              final tempDir = await getTemporaryDirectory();
+              final tempFile = File('${tempDir.path}/temp_image.jpg')
+                ..writeAsBytesSync(compressedImageBytes);
+
+              // Upload the compressed image file
               final storageRef = FirebaseStorage.instance.ref().child(
                   'reported_items/${DateTime.now().millisecondsSinceEpoch}.jpg');
-              final uploadTask = storageRef.putFile(_selectedImage!);
+              final uploadTask = storageRef.putFile(tempFile);
               final snapshot = await uploadTask.whenComplete(() {});
               imageUrl = await snapshot.ref.getDownloadURL();
             } catch (e) {
@@ -482,7 +509,7 @@ class _ReportItemState extends State<ReportItem> {
                             ),
                           ),
                           Text(
-                            ' Phone Number',
+                            ' Your Phone Number',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 13,

@@ -166,8 +166,15 @@ class Home extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ItemInfoScreen()),
+                                  builder: (context) => ItemInfoScreen(
+                                    imageUrl: item['image_url'],
+                                    itemName: item['item_name'],
+                                    description: item['description'],
+                                    location: item['location'],
+                                    foundDate: item['found_date'],
+                                    phoneNumber: item['phone_number'], contactId: '',
+                                  ),
+                                ),
                               );
                             },
                             child: Column(
@@ -215,6 +222,7 @@ class Home extends StatelessWidget {
                                     fontWeight: FontWeight.w400,
                                     color: Colors.white,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   item['found_date'] != null
